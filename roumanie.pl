@@ -1,9 +1,9 @@
 % Auteur: Charles-Antoine Brunet
 % Date: 2010-08-31
-% Données pour la carte de la Roumanie, selon le livre de
-% de Russel et Norvig, 3e édition, pages 68 et 93
+% DonnÃ©es pour la carte de la Roumanie, selon le livre de
+% de Russel et Norvig, 3e Ã©dition, pages 68 et 93
 
-% Représentation de la fonction successeur S(n)
+% ReprÃ©sentation de la fonction successeur S(n)
 s(arad,          [sibiu, timisoara, zerind]).
 s(bucharest,     [fagaras,giurgiu,pitesti,urziceni]).
 s(craiova,       [dobreta,pitesti,rimnicuVilcea]).
@@ -25,7 +25,7 @@ s(urziceni,      [bucharest,hirsova,vaslui]).
 s(vaslui,        [iasi,urziceni]).
 s(zerind,        [arad,oradea]).
 
-% Distance à vol d'oiseau de Bucharest: heuristique h(n)
+% Distance Ã  vol d'oiseau de Bucharest: heuristique h(n)
 h(arad, 366).      h(bucharest, 0). h(craiova, 160).       h(dobreta, 242).
 h(eforie, 161).    h(fagaras, 178). h(giurgiu, 77).        h(hirsova, 151).
 h(iasi, 226).      h(lugoj, 244).   h(mehadia, 241).       h(neamt, 234).
@@ -63,7 +63,7 @@ d(vaslui, iasi, 92).            d(vaslui, urziceni, 142).
 d(zerind, arad, 75).            d(zerind, oradea, 71).
 
 %============================================================
-%Auteur: Afaf Taïk
+%Auteur: Afaf TaÃ¯k
 
 %============================================================
 %Using greedy :
@@ -181,10 +181,32 @@ depth_search(Frontier,Explored,Goal,Solution):-
     depth_search(NewFrontier,Explored,Goal,Solution).
 
 
+%=======================================================
+%A star
+astar(Start,Finish,ShortestPath,Len):-
+    star([0-[Start]],Finish,Rshort,Len),
+    reverse(Rshort,ShortestPath).
+star([Len-[Fin|Rpath]|_],Fin,[Fin|Rpath],Len):-!.
+star(Visited,Fin,RshortestPath,Len):-
+    bestCandidatestar(Visited,BestCandidate),
+    star([BestCandidate|Visited],Fin,RshortestPath,Len).
+bestCandidatestar(Paths,BestCandidate):-
+    findall(NP,
+            (    member(Len-[P1|Path],Paths),
+                 d(P1,P2,Dist),
+                 \+isClosed(Paths,P2),
+                 h(P2,X),
+                 NLen is Len+Dist+X,
+                 NP=NLen-[P2,P1|Path]),Candidates),
+            best(Candidates,BestCandidate).
+best(Candidates,BestCandidate):-
+    keysort(Candidates,[BestCandidate|_]).
+isClosed(Paths,P):-
+    memberchk(_-[P|_],Paths).
 
 %------------------------------------------------------------------------------
-% Structure de données de set (collection),
-%   Le set est sans dupliqués et les valeurs ne sont pas ordonnées
+% Structure de donnÃ©es de set (collection),
+%   Le set est sans dupliquÃ©s et les valeurs ne sont pas ordonnÃ©es
 %
 % Auteur: Charles-Antoine Brunet
 %------------------------------------------------------------------------------
@@ -193,37 +215,37 @@ depth_search(Frontier,Explored,Goal,Solution):-
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% +: paramètre en entrèe
-% -: paramètre en sortie
-% ?: paramètre en entrèe ou sortie
+% +: paramÃ¨tre en entrÃ¨e
+% -: paramÃ¨tre en sortie
+% ?: paramÃ¨tre en entrÃ¨e ou sortie
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% Tester si un set est vide ou créer un set
+% Tester si un set est vide ou crÃ©er un set
 % empty_set(?Set)
 %------------------------------------------------------------------------------
 empty_set([]).
 
 %------------------------------------------------------------------------------
-% Vérifier si un élément est membre d'un set
+% VÃ©rifier si un Ã©lÃ©ment est membre d'un set
 % Utilise la fonction member de la librairie standard de liste
 % member_set(+Item, +Set)
 %------------------------------------------------------------------------------
 member_set(E, S) :- member(E, S).
 
 %------------------------------------------------------------------------------
-% Enlever un élément du set, s'il est présent
+% Enlever un Ã©lÃ©ment du set, s'il est prÃ©sent
 % delete_in_set(+Item, +Set, -NewSet)
-% Item=item à enlever, Set = ancien set, NewSet = nouveau set
+% Item=item Ã  enlever, Set = ancien set, NewSet = nouveau set
 %------------------------------------------------------------------------------
 delete_in_set(_, [], []) :- !.
 delete_in_set(E, [E|T], T) :- !.
 delete_in_set(E, [H|T], [H|Tnew]) :- delete_in_set(E,T,Tnew).
 
 %------------------------------------------------------------------------------
-% Ajouter un élément au set, s'il n'est pas présent
+% Ajouter un Ã©lÃ©ment au set, s'il n'est pas prÃ©sent
 % add_in_set(+Item, +Set, -NewSet)
-% Item=item à ajouter, Set = ancien set, NewSet = nouveau set
+% Item=item Ã  ajouter, Set = ancien set, NewSet = nouveau set
 %------------------------------------------------------------------------------
 add_in_set(E, S, S) :- member(E,S), !.
 add_in_set(E, S, [E|S]).
@@ -237,16 +259,16 @@ set_union([], S, S).
 set_union([H|T], S, Snew) :- set_union(T, S, Tmp), add_in_set(H, Tmp, Snew).
 
 %------------------------------------------------------------------------------
-% Vérifier si un set est un sous-ensemble d'un autre
+% VÃ©rifier si un set est un sous-ensemble d'un autre
 % sub_set(+Set1, +Set2) est vrai si Set1 est un sous-ensemble de Set2.
 %------------------------------------------------------------------------------
 sub_set([],_).
 sub_set([H|T], S) :- member_set(H,S), sub_set(T,S).
 
 %------------------------------------------------------------------------------
-% Trouver les éléments communs à 2 sets
+% Trouver les Ã©lÃ©ments communs Ã  2 sets
 % set_intersection(+Set1, +Set2, -Intersection)
-% Intersection contient les items communs à Set1 et Set2.
+% Intersection contient les items communs Ã  Set1 et Set2.
 %------------------------------------------------------------------------------
 set_intersection([], _, []).
 set_intersection([H|T],S,[H|Snew]) :-
@@ -254,9 +276,9 @@ set_intersection([H|T],S,[H|Snew]) :-
 set_intersection([_|T],S,Snew) :- set_intersection(T, S, Snew).
 
 %------------------------------------------------------------------------------
-% Calculer la différence entre 2 sets.
+% Calculer la diffÃ©rence entre 2 sets.
 % set_difference(+Set1,+Set2,-Difference)
-% Différence contient les éléments qui sont dans Set1 mais pas dans Set2
+% DiffÃ©rence contient les Ã©lÃ©ments qui sont dans Set1 mais pas dans Set2
 %------------------------------------------------------------------------------
 set_difference([], _, []).
 set_difference([H|T], S, Tnew) :-
@@ -264,7 +286,7 @@ set_difference([H|T], S, Tnew) :-
 set_difference([H|T], S, [H|Tnew]) :- set_difference(T,S,Tnew).
 
 %------------------------------------------------------------------------------
-% Vérifier si 2 sets sont équivalents
+% VÃ©rifier si 2 sets sont Ã©quivalents
 % equal_set(+S1, +S2)
 % Vrai si tous membres de Set1 sont dans Set2 et ceux de Set2 dans Set1
 %------------------------------------------------------------------------------
@@ -276,7 +298,7 @@ equal_set(S1, S2) :- sub_set(S1, S2), sub_set(S2, S1).
 print_set([]).
 print_set([H|Q]) :- write(H), nl, print_set(Q).
 %------------------------------------------------------------------------------
-% Structure de données de file (queue) et file (queue) avec priorité
+% Structure de donnÃ©es de file (queue) et file (queue) avec prioritÃ©
 % Auteur: Charles-Antoine Brunet
 %------------------------------------------------------------------------------
 % Version 1.0: Version initiale
@@ -284,13 +306,13 @@ print_set([H|Q]) :- write(H), nl, print_set(Q).
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% +: paramètre en entrée
-% -: paramètre en sortie
-% ?: paramètre en entrée ou sortie
+% +: paramÃ¨tre en entrÃ©e
+% -: paramÃ¨tre en sortie
+% ?: paramÃ¨tre en entrÃ©e ou sortie
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% Tester si une file est vide ou créer une file
+% Tester si une file est vide ou crÃ©er une file
 % empty_queue(?Stack)
 %------------------------------------------------------------------------------
 empty_queue([]).
@@ -298,7 +320,7 @@ empty_queue([]).
 %------------------------------------------------------------------------------
 % Ajouter un item dans la file
 % enqueue(+Item, +Queue, -NewQueue)
-% Item=item à ajouter, Y=ancienne file, Z=nouvelle file
+% Item=item Ã  ajouter, Y=ancienne file, Z=nouvelle file
 %------------------------------------------------------------------------------
 enqueue(E, [], [E]).
 enqueue(E, [H|T], [H|Tnew]) :- enqueue(E, T, Tnew).
@@ -306,7 +328,7 @@ enqueue(E, [H|T], [H|Tnew]) :- enqueue(E, T, Tnew).
 %------------------------------------------------------------------------------
 % Elever un item de la file
 % dequeue(-Item, +Queue, -NewQueue)
-% Item= item enlevé, Queue=ancienne file, NewQueue=la nouvelle file
+% Item= item enlevÃ©, Queue=ancienne file, NewQueue=la nouvelle file
 %------------------------------------------------------------------------------
 dequeue(E, [E|T], T).
 
@@ -317,52 +339,52 @@ dequeue(E, [E|T], T).
 peek_queue(E, [E|_]).
 
 %------------------------------------------------------------------------------
-% Vérifier si un élement est membre d'une file
+% VÃ©rifier si un Ã©lement est membre d'une file
 % Utilise la fonction member de la librairie standard de liste
 %------------------------------------------------------------------------------
 member_queue(E, T) :- member(E, T).
 
 %------------------------------------------------------------------------------
-% Ajoute une liste d'élements à une file
+% Ajoute une liste d'Ã©lements Ã  une file
 % add_list_to_queue(+List, +Queue, -NewQueue)
-% List=liste à ajouter, Queue=ancienne file, NewQueue=nouvelle file
+% List=liste Ã  ajouter, Queue=ancienne file, NewQueue=nouvelle file
 % Utilise la fonction append de la librairie standard de liste
 %------------------------------------------------------------------------------
 add_list_to_queue(List, T, NewT) :- append(T, List, NewT).
 %------------------------------------------------------------------------------
-% QUEUE AVEC PRIORITÉ
+% QUEUE AVEC PRIORITÃ‰
 %------------------------------------------------------------------------------
-% Les opérateurs empty_queue, member_queue, dequeue et peek sont les mêmes
-%      que plus haut. Les 2 opérateurs qui changent sont les suivants
+% Les opÃ©rateurs empty_queue, member_queue, dequeue et peek sont les mÃªmes
+%      que plus haut. Les 2 opÃ©rateurs qui changent sont les suivants
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% Ajouter un item dans la file avec priorité
+% Ajouter un item dans la file avec prioritÃ©
 % insert_pq(+Item, +Queue, -NewQueue)
-% Item=item à ajouter, Y=ancienne file, Z=nouvelle file
+% Item=item Ã  ajouter, Y=ancienne file, Z=nouvelle file
 %------------------------------------------------------------------------------
 insert_pq(E, [], [E]) :- !.
 insert_pq(E, [H|T], [E, H|T]) :- precedes(E,H), !.
 insert_pq(E, [H|T], [H|Tnew]) :- insert_pq(E, T, Tnew).
 
 %------------------------------------------------------------------------------
-% Ajouter une liste d'éléments (non ordonnés) à une file avec priorité
+% Ajouter une liste d'Ã©lÃ©ments (non ordonnÃ©s) Ã  une file avec prioritÃ©
 % insert_list_pq(+List, +Queue, -NewQueue)
-% List=liste à ajouter, Queue=ancienne file, NewQueue=nouvelle file
+% List=liste Ã  ajouter, Queue=ancienne file, NewQueue=nouvelle file
 %------------------------------------------------------------------------------
 insert_list_pq([], L, L).
 insert_list_pq([E|T], L, NewL) :-
     insert_pq(E, L, Tmp), insert_list_pq(T, Tmp, NewL).
 
 %------------------------------------------------------------------------------
-% IMPORTANT! Selon le type de données, peut-être nécessaire de changer la
-%     définition du prédicat suivant.
+% IMPORTANT! Selon le type de donnÃ©es, peut-Ãªtre nÃ©cessaire de changer la
+%     dÃ©finition du prÃ©dicat suivant.
 %------------------------------------------------------------------------------
 precedes(X,Y) :- X<Y .
 
 
 %------------------------------------------------------------------------------
-% Structure de données de pile
+% Structure de donnÃ©es de pile
 % Auteur: Charles-Antoine Brunet
 %------------------------------------------------------------------------------
 % Version 1.0: Version initiale
@@ -370,20 +392,20 @@ precedes(X,Y) :- X<Y .
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% +: paramètre en entrée
-% -: paramètre en sortie
-% ?: paramètre en entrée ou sortie
+% +: paramÃ¨tre en entrÃ©e
+% -: paramÃ¨tre en sortie
+% ?: paramÃ¨tre en entrÃ©e ou sortie
 %------------------------------------------------------------------------------
 
 %------------------------------------------------------------------------------
-% Test si une pile est vide ou créer une pile
+% Test si une pile est vide ou crÃ©er une pile
 % empty_stack(?Stack)
 %------------------------------------------------------------------------------
 empty_stack([]).
 
 %------------------------------------------------------------------------------
 % Pousser (push) et enlever (pop) un item sur une pile
-% push : stack(+X, +Y, -Z), X=item à ajouter, Y=ancienne pile, Z=nouvelle pile
+% push : stack(+X, +Y, -Z), X=item Ã  ajouter, Y=ancienne pile, Z=nouvelle pile
 % pop: stack(-X, -Y, +Z), X=item dessus, Y=nouvelle pile, Z=ancienne pile
 %------------------------------------------------------------------------------
 stack(Top, Stack, [Top|Stack]).
@@ -396,16 +418,16 @@ stack(Top, Stack, [Top|Stack]).
 peek_stack(Top,[Top|_]).
 
 %------------------------------------------------------------------------------
-% Vérifier si un item est membre d'une pile
+% VÃ©rifier si un item est membre d'une pile
 % Utilise la fonction member de la librairie standard de liste
 % member_stack(+Item, +Stack)
 %------------------------------------------------------------------------------
 member_stack(Item, Stack) :- member(Item, Stack).
 
 %------------------------------------------------------------------------------
-% Ajouter une liste d'items à une pile
+% Ajouter une liste d'items Ã  une pile
 % add_list_to_stack(+List, +Stack, -NewStack)
-% List=liste à ajouter, Stack=ancienne pile, NewStack=nouvelle pile
+% List=liste Ã  ajouter, Stack=ancienne pile, NewStack=nouvelle pile
 % Utilise la fonction append de la librairie standard de liste
 %------------------------------------------------------------------------------
 add_list_to_stack(List, Stack, NewStack) :- append(List, Stack, NewStack).
