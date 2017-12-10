@@ -116,36 +116,24 @@ isVisited(Paths,P):-
 %------------------------------------------------------
 %breadth first
 %
-%
-frontier_breadth(Frontier,Successors,NewFrontier):-
-    Frontier=[X|R],
-    dequeue(X, [X|R],R ),
-    add_list_to_queue(Successors,R,NewFrontier).
+%taken from stack overflow
+breadth_fst( Start, Goal, Path):- bfs( Goal, [[Start]], Path).
 
-%breadth_search(Frontier,_,_,Solution):-
- %   empty_set(Frontier),
-  %  Solution is [].
+consed(A,B,[B|A]).
 
-breadth_search(Frontier,_,Goal,Solution):-
-    Frontier=[X|_],
-    X==Goal,
-    write(Solution).
-breadth_search(Frontier,Explored,Goal,Solution):-
-    Frontier=[X|_],
-    \+member_set(X,Explored),
-    \+(X==Goal),
-    s(X,Successors),
-    add_in_set(X,Explored,NewExplored),
-    enqueue(X,Solution,NewSolution),
-    frontier_breadth(Frontier,Successors,NewFrontier),
-    breadth_search(NewFrontier,NewExplored,Goal,NewSolution).
+bfs(Goal, [Visited|Rest], Path) :-                     % take one from front
+    Visited = [Start|_],
+    Start \== Goal,
+    findall(X,
+        (d(Start,X,_),not(member(X,Visited))),
+        [T|Extend]),
+    maplist( consed(Visited), [T|Extend], VisitedExtended),      % make many
+    append(Rest, VisitedExtended, UpdatedQueue),       % put them at the end
+    bfs( Goal, UpdatedQueue, Path ).
 
-breadth_search(Frontier,Explored,Goal,Solution):-
-    Frontier=[X|_],
-    member_set(X,Explored),
-    \+(X==Goal),
-    dequeue(X,Frontier,NewFrontier),
-    breadth_search(NewFrontier,Explored,Goal,Solution).
+bfs(Goal, [[Goal|Visited]|_], Path):-
+    reverse([Goal|Visited], Path).
+
 
 %---------------------------------------------------------
 %Depth first
