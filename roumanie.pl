@@ -186,7 +186,10 @@ bestCandidatestar(Paths,BestCandidate):-
                  h(P2,X),
                  NLen is Len+Dist+X,
                  NP=NLen-[P2,P1|Path]),Candidates),
-            best(Candidates,BestCandidate).
+     best(Candidates,BestCandidate1),
+     BestCandidate1=N-[City|R],h(City,X),NLen is N-X,
+     BestCandidate=NLen-[City|R].
+
 best(Candidates,BestCandidate):-
     keysort(Candidates,[BestCandidate|_]).
 isClosed(Paths,P):-
