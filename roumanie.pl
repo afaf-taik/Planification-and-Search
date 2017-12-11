@@ -116,24 +116,27 @@ isVisited(Paths,P):-
 %------------------------------------------------------
 %breadth first
 %
-%taken from stack overflow
-breadth_fst( Start, Goal, Path):- bfs( Goal, [[Start]], Path).
+bfs( [], _, _ ):-
+	write("Failure").
 
-consed(A,B,[B|A]).
 
-bfs(Goal, [Visited|Rest], Path) :-                     % take one from front
-    Visited = [Start|_],
-    Start \== Goal,
-    findall(X,
-        (d(Start,X,_),not(member(X,Visited))),
-        [T|Extend]),
-    maplist( consed(Visited), [T|Extend], VisitedExtended),      % make many
-    append(Rest, VisitedExtended, UpdatedQueue),       % put them at the end
-    bfs( Goal, UpdatedQueue, Path ).
+bfs( Fringe, Goal, SolutionPath ):-
+    member([PathH|PathT], Fringe),
+    Goal == PathH,
+   reverse([PathH|PathT],SolutionPath).
 
-bfs(Goal, [[Goal|Visited]|_], Path):-
-    reverse([Goal|Visited], Path).
+bfs( Fringe, Goal, SolutionPath ):-
+    [CurrentPath|RestOfFringe] = Fringe,
+    bfs_successor(CurrentPath, SuccPaths),
+    append(RestOfFringe, SuccPaths, NewFringe),
+    bfs( NewFringe, Goal, SolutionPath ).
 
+new_path([PathH|PathT], NewPath):-
+    d(PathH, X,_),
+    \+ member(X, [PathH|PathT]),
+    append([X], [PathH|PathT], NewPath).
+bfs_successor(Path, Successors ):-
+    findall(NewPath, new_path(Path, NewPath), Successors).
 
 %---------------------------------------------------------
 %Depth first
